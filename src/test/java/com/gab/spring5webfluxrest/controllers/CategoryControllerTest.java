@@ -85,4 +85,23 @@ public class CategoryControllerTest {
                 .isCreated();
     }
 
+    @Test
+    public void updateCategory() {
+
+        Category category = Category.builder().description("cat_1").build();
+
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(category));
+
+        Mono<Category> categoryMono = Mono.just(category);
+
+        webTestClient.put()
+                .uri("/api/v1/categories/1")
+                .body(categoryMono, Category.class)
+                .exchange()
+                .expectStatus()
+                .isAccepted()
+                .expectBody(Category.class);
+    }
+
 }
