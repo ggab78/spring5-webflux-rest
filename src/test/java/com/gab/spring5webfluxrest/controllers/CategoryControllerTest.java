@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -56,9 +58,31 @@ public class CategoryControllerTest {
         given(categoryRepository.findById(anyString()))
                 .willReturn(Mono.just(category));
         webTestClient.get()
-                .uri("api/v1/categories/1")
+                .uri("/api/v1/categories/1")
                 .exchange()
+                .expectStatus()
+                .isOk()
                 .expectBody(Category.class)
                 .equals(category);
     }
+
+    @Test
+    public void createCategory() {
+
+        Category category = Category.builder().description("cat_1").build();
+
+        given(categoryRepository.saveAll(any(Publisher.class)))
+                .willReturn(Flux.just(category));
+
+
+       Flux<Category> catToSave = Flux.just(category);
+
+        webTestClient.post()
+                .uri("/api/v1/categories")
+                .body(catToSave, Category.class)
+                .exchange()
+                .expectStatus()
+                .isCreated();
+    }
+
 }
