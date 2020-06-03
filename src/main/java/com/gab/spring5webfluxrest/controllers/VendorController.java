@@ -45,10 +45,10 @@ public class VendorController {
 
         Vendor existing = vendorRepository.findById(id).block();
 
-        if(existing.getFirstName()!=vendor.getFirstName() ){
+        if(!existing.getFirstName().equals(vendor.getFirstName())){
             existing.setFirstName(vendor.getFirstName());
         }
-        if(existing.getLastName()!=vendor.getLastName()){
+        if(!existing.getLastName().equals(vendor.getLastName())){
             existing.setLastName(vendor.getLastName());
         }
 
