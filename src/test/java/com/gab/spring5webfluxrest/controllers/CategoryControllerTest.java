@@ -5,8 +5,7 @@ import com.gab.spring5webfluxrest.repositories.CategoryRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+
 import org.mockito.Mockito;
 import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -17,6 +16,7 @@ import reactor.core.publisher.Mono;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 public class CategoryControllerTest {
 
@@ -103,5 +103,30 @@ public class CategoryControllerTest {
                 .isAccepted()
                 .expectBody(Category.class);
     }
+
+
+    @Test
+    public void patchCategory() {
+
+        Category existing = Category.builder().description("cat_1").build();
+        Category toPatch = Category.builder().description("cat_patch").build();
+
+        given(categoryRepository.findById(anyString())).willReturn(Mono.just(existing));
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(existing));
+
+        Mono<Category> categoryToPatch = Mono.just(toPatch);
+
+        webTestClient.patch()
+                .uri("/api/v1/categories/1")
+                .body(categoryToPatch, Category.class)
+                .exchange()
+                .expectStatus()
+                .isAccepted()
+                .expectBody(Category.class);
+
+        verify(categoryRepository).save(any(Category.class));
+    }
+
 
 }
